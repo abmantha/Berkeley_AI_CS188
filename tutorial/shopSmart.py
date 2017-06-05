@@ -29,7 +29,15 @@ def shopSmart(orderList, fruitShops):
         fruitShops: List of FruitShops
     """
     "*** YOUR CODE HERE ***"
-    return None
+    min_price = float('inf')
+    min_price_fruitshop = None
+    for fs in fruitShops: 
+      fs_price = fs.getPriceOfOrder(orderList)
+      if fs_price < min_price: 
+        min_price = fs_price
+        min_price_fruitshop = fs
+
+    return min_price_fruitshop
 
 if __name__ == '__main__':
   "This code runs when you invoke the script from the command line"

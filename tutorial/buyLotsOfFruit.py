@@ -11,6 +11,7 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+import shop
 
 """
 To run this script, type
@@ -32,9 +33,9 @@ def buyLotsOfFruit(orderList):
 
     Returns cost of order
     """
-    totalCost = 0.0
     "*** YOUR CODE HERE ***"
-    return totalCost
+    fruitShop = shop.FruitShop("Abhi's Fruit Shop", fruitPrices)
+    return fruitShop.getPriceOfOrder(orderList)
 
 # Main Method
 if __name__ == '__main__':
