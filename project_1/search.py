@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+from game import Directions
 
 class SearchProblem:
     """
@@ -86,18 +87,177 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Pseudocode: 
+        Stack s; 
+        for each vertex u, set visited[u] to false
+        push start location onto Stack
+        while (S is not empty): 
+            pop off an element from the stack
+
+            if element is goal: 
+                return the list of actions taken to get this node
+
+
+            if it has not been visited yet: 
+                set that its been visited
+
+                for each unvisited neighbor w of u (extend the fringe or frontier):
+                    push w onto Stack
+    """
+    # Create a new stack s
+    stack = util.Stack()
+    # pqueue = util.PriorityQueue()
+
+    # Create a list of visited nodes
+    visited = []
+
+    # Start position tuple
+    start = (problem.getStartState(), Directions.STOP, 0)
+
+    # Push the start state onto the stack
+    stack.push([start])
+    # pqueue.push([start], 0)
+
+    # While the stack is not empty
+    while not stack.isEmpty():
+    # while not pqueue.isEmpty(): 
+
+        # Pop off an element from the stack
+        currentPlan = stack.pop()
+        # currentPlan = pqueue.pop()
+
+        # If element is goal
+        currentState = currentPlan[len(currentPlan)-1][0]
+        if problem.isGoalState(currentState): 
+            directions = [ path[1] for path in currentPlan if path[1] != Directions.STOP ]
+            return directions
+
+        # If element has not been visited
+        if currentState not in visited: 
+
+            # Indicate that the element has been visited
+            visited.append(currentState)
+
+            # For each unvisited neighbor of u
+            successors = problem.getSuccessors(currentState)
+            for succ in successors: 
+                # Push the neighbor onto the stack
+                if succ[0] not in visited:
+                    newPlan = [succ]
+                    stack.push(currentPlan + newPlan)
+                    # pqueue.push(currentPlan + newPlan, problem.getCostOfActions(currentPlan[1]))
+
+    return None
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    """
+    Pseudocode: 
+
+    Queue queue;
+    Goal test the start location
+    Add the start location to the queue
+    Initialize the visited list
+
+    loop: 
+        if the frontier is empty, return failure
+        pop a node off the frontier
+        add the node to the visited list
+        for each of its successors: 
+            if the child is not in the explored or frontier:
+                if the child is the goal, return solution
+                insert the child into the frontier
+    """
+    # Create a new queue 
+    queue = util.Queue()
+
+    # Create a list of visited nodes
+    visited = []
+
+    # Start position tuple
+    start = (problem.getStartState(), Directions.STOP, 0)
+
+    # Goal test the start
+    if problem.isGoalState(start[0]): 
+        return [start[1]]
+
+    # Push the start state onto the queue
+    queue.push([start])
+
+    while not queue.isEmpty(): 
+
+        # Pop off an element from the queue
+        currentPlan = queue.pop()
+
+        # Get the current state location from plan
+        currentState = currentPlan[len(currentPlan)-1][0]
+
+        # Add node to visited list
+        visited.append(currentState)
+
+        # Get the successors for current state
+        successors = problem.getSuccessors(currentState)
+
+        # For each successor 
+        for succ in successors: 
+            succState = succ[0]
+
+            # TODO: How to check if succState is not in frontier ???
+            if succState not in visited: 
+                updatedPlan = currentPlan + [succ]
+                if problem.isGoalState(succState): 
+                    directions = [ path[1] for path in updatedPlan if path[1] != Directions.STOP ]
+                    return directions
+                queue.push(updatedPlan)
+
+    return None
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Pseudocode: 
+
+    PriorityQueue pqueue
+    Add the start location to the priority queue
+    Initialize list of visited nodes
+
+    while frontier is not empty: 
+        pop node off the frontier
+        if node is goal, return solution
+        add node to list of visited 
+        for each successor of node: 
+            if successor is not explored or in frontier: 
+                insert child into frontier
+            else if child is in frontier with higher path-cost,
+                replace original frontier node with child
+    """
+    priorityQueue = util.PriorityQueue()
+
+    visited = []
+
+    start = (problem.getStartState(), Directions.STOP, 0)
+
+    priorityQueue.push([start], problem.getCostOfActions([Directions.STOP]))
+
+    while not priorityQueue.isEmpty(): 
+        currentPlan = priorityQueue.pop()
+
+        currentState = currentPlan[len(currentPlan)-1][0]
+        if problem.isGoalState(currentState): 
+            directions = [ path[1] for path in currentPlan if path[1] != Directions.STOP ]  
+            return directions
+
+        visited.append(currentState)
+
+        successors = problem.getSuccessors(currentState)
+        for succ in successors: 
+            succState = succ[0]
+            if succState not in visited: 
+                updatedPlan = currentPlan + [succ]
+                updatedPlanCost = problem.getCostOfActions([ path[1] for path in updatedPlan if path[1] != Directions.STOP ])
+                priorityQueue.update(updatedPlan, updatedPlanCost)
 
 def nullHeuristic(state, problem=None):
     """
