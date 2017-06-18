@@ -259,6 +259,7 @@ def uniformCostSearch(problem):
                 updatedPlanCost = problem.getCostOfActions([ path[1] for path in updatedPlan if path[1] != Directions.STOP ])
                 priorityQueue.update(updatedPlan, updatedPlanCost)
 
+    return None
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
@@ -268,9 +269,47 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    """
+    f(n) = h(n) + g(n)
+    f(n) = estimated cost of cheapest solution through n 
+    h(n) = estimated cost of cheapest path from n to the goal
+    g(n) = path cost from start node to node n
+    """
+
+    priorityQueue = util.PriorityQueue()
+
+    visited = []
+
+    start = (problem.getStartState(), Directions.STOP, 0)
+    gStart = problem.getCostOfActions([start[1]])
+    hStart = heuristic(start[0], problem)
+    fStart = gStart + hStart 
+
+    priorityQueue.push([start], fStart)
+
+    while not priorityQueue.isEmpty(): 
+        currentPlan = priorityQueue.pop()
+
+        currentState = currentPlan[len(currentPlan)-1][0]
+        if problem.isGoalState(currentState): 
+            directions = [ path[1] for path in currentPlan if path[1] != Directions.STOP ]
+            return directions
+
+        visited.append(currentState)
+
+        successors = problem.getSuccessors(currentState)
+        for succ in successors: 
+            succState = succ[0]
+            if succState not in visited: 
+                updatedPlan = currentPlan + [succ]
+                updatedPlanPath = [ path[1] for path in updatedPlan if path[1] != Directions.STOP ]
+                gUpdatedPlan = problem.getCostOfActions(updatedPlanPath)
+                hUpdatedPlan = heuristic(succState, problem)
+                fUpdatedPlan = gUpdatedPlan + hUpdatedPlan
+                priorityQueue.update(updatedPlan, fUpdatedPlan)
+
+    return None
 
 # Abbreviations
 bfs = breadthFirstSearch
